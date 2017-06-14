@@ -1,7 +1,7 @@
 extern crate crypto;
 
-use crypto::{ symmetriccipher, buffer, aes, blockmodes };
-use crypto::buffer::{ ReadBuffer, WriteBuffer, BufferResult };
+use self::crypto::{ symmetriccipher, buffer, aes, blockmodes };
+use self::crypto::buffer::{ ReadBuffer, WriteBuffer, BufferResult };
 
 
 
