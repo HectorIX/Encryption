@@ -1,9 +1,30 @@
+extern crate rand;
+
+use self::rand::{ Rng, OsRng };
+
+
 use std::io::{self, BufRead};
 use fileIO;
 use menu;
-//use caesar_cipher;
+use aes256;
+use sha256;
 use caesar_cipher_ascii;
 
+
+
+// Print out the menu
+fn print_menu() {
+
+    println!("\n%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n");
+    println!("\t 1. Store your plaintext message in a file.");
+    println!("\t 2. Encrypt the plaintext message using Caesar Cipher.");
+    println!("\t 3. Decrypt the ciphertext [Caesar Cipher decryptor].");
+    println!("\t 4. Encrypt the plaintext message using AES-256.");
+    println!("\t 5. Decrypt the ciphertext [AES-256 decryptor].");
+    println!("\t 6. Calculate the SHA-256 signature of a file.");
+    println!("\t 7. Exit Program.");
+    println!("\n%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n");
+}
 
 
 // Ask user to insert a value from the keyboard
@@ -17,62 +38,68 @@ pub fn menu() {
     let mut encrypted_message = String::new();
     let mut plaintext_message = String::new();
 
-    let mut choice:i32 = 0;
+    let mut userChoice:i32 = 0;
     let mut dencryption_key:i32;
 
+    // Filenames
+    let inputFile: String = "input.txt".to_string();
+    let caesarInput: String = "caesarInput.txt".to_string();
+    let caesarOutput: String = "caesarOutput.txt".to_string();
+    let aesInput: String = "aesInput.txt".to_string();
+    let aesOutput: String = "aesOutput.txt".to_string();
+    let initializedVector: String = "iv.txt".to_string();
 
-    // while the user's choice is not 4 (Exit)
+
+    // while the user's choice is not 7 (Exit)
     // the loop is continuously executed.
-    while choice != 4 {
+    while userChoice != 7 {
 
         print_menu();
         println!("Your choice: " );
-        choice = read_integer();
+        userChoice = read_integer();
 
 
-        match choice {
+        match userChoice {
 
             1 => {
                     // Case 1:
                     // The user inserts a message using the keyboard.
-                    // And this message is stored into the "input.txt" file.
-                    let write_filename:String = "input.txt".to_string();
                     println!("Insert a plaintext message: ");
                     message = read_message_stdin();
-                    fileIO::write_file(write_filename,message)
+
+                    // Store this message to the specified files.
+                    fileIO::write_file(inputFile.clone(),message.clone());
+                    fileIO::write_file(caesarInput.clone(),message.clone());
+                    fileIO::write_file(aesInput.clone(),message.clone());
                  },
             2 => {
                     // Case 2:
-                    // Read the "input.txt" file as message.
+                    // Read the "caesarInput.txt" file.
                     // Encrypt this message using a key given by the user.
-                    // And store the encrypted message to the "output.txt".
+                    // And store the encrypted message to the "caesarOutput.txt".
 
-                    let read_filename:String = "input.txt".to_string();
-
-                    // Read the message from "input.txt"
-                    message = fileIO::read_file(read_filename);
+                    // Read the message from "caesarInput.txt"
+                    message = fileIO::read_file(caesarInput.clone());
 
                     // Encrypt the message.
                     encrypted_message = caesar_cipher_ascii::encrypt_ascii(message);
                     println!("The encrypted message is: {}", encrypted_message );
 
-                    // Store the message to the "output.txt"
-                    let write_filename:String = "output.txt".to_string();
-                    fileIO::write_file(write_filename,encrypted_message)
+                    // Store the message to the "caesarOutput.txt"
+                    fileIO::write_file(caesarOutput.clone(),encrypted_message)
                 },
             3 => {
                     // Case 3:
-                    // Read "output.txt" as encrypted message.
+                    // Read the "caesarOutput.txt" file.
                     // Then ask for the decryption key.
                     // Use the encrypted message alongside with the decryption key
                     // and decrypt the message.
                     // Then print out the decrypted message.
-                    // (If user provide a wrong key, the printed message will not be readable. )
+                    // ( If user provide a wrong key, the printed message will not be readable. )
 
-                    let read_filename:String = "output.txt".to_string();
 
-                    // Read from "output.txt"
-                    encrypted_message = fileIO::read_file(read_filename);
+                    // Read from "caesarOutput.txt"
+                    encrypted_message = fileIO::read_file(caesarOutput.clone());
 
                     // Ask for the decryption key.
                     println!("Enter the decryption key (a positive integer):" );
@@ -83,6 +110,35 @@ pub fn menu() {
                     println!("The plaintext message is: {:?}", plaintext_message)
                  },
             4 => {
+                    let mut key: [u8; 32] = [0; 32];
+                    let mut iv: [u8; 16] = [0; 16];
+
+                    // Read the message from "aesInput.txt"
+                    message = fileIO::read_file(aesInput.clone());
+
+
+                    let mut rng = OsRng::new().ok().unwrap();
+                    rng.fill_bytes(&mut key);
+                    rng.fill_bytes(&mut iv);
+
+                    // Encrypt the message using AES-256 encryption algorithm.
+                    let var = aes256::aes256_encrypt(&message.clone().into_bytes(), &key, &iv).ok().unwrap();
+
+                    println!("var = {:?}", var);
+                    // Store the message to the "aesOutput.txt"
+                    //fileIO::write_file(aesOutput.clone(),encrypted_message);
+                    println!("Your message is secure!" );
+
+                 },
+            5 => {
+
+
+                 },
+            6 => {
+
+
+                 },
+            7 => {
                     println!("Program terminated!");
                     break
                  },
@@ -91,18 +147,6 @@ pub fn menu() {
 
     }
 
-}
-
-
-// Print out the menu
-fn print_menu() {
-
-    println!("\n%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n");
-    println!("\t 1. Store your plaintext message in a file.");
-    println!("\t 2. Encrypt the plaintext message.");
-    println!("\t 3. Decrypt the plaintext message.");
-    println!("\t 4. Exit Program.");
-    println!("\n%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n");
 }
 
 
