@@ -24,10 +24,10 @@ pub fn write_file( filename:String, context:String ) {
     match file.write_all(context.as_bytes()) {
 
         Err(failure) => {
-                panic!("couldn't write to {}: {}", filename
+                panic!("Couldn't write to {}: {}", filename
                                                  , failure.description())
                 },
-        Ok(_) => println!(" successfully stored into {}.", filename),
+        Ok(_) => println!("Message successfully stored into {}.", filename),
     }
 
 }

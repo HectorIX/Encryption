@@ -4,6 +4,7 @@ use self::rand::{ Rng, OsRng };
 
 
 use std::io::{self, BufRead};
+use std;
 use fileIO;
 use menu;
 use aes256;
@@ -124,10 +125,25 @@ pub fn menu() {
                     // Encrypt the message using AES-256 encryption algorithm.
                     let var = aes256::aes256_encrypt(&message.clone().into_bytes(), &key, &iv).ok().unwrap();
 
-                    println!("var = {:?}", var);
+                    let mut array: String = "".to_string();
+                    //for letter in var {
+                    //    array.push(std::char::from_u32(letter as u32).unwrap());
+                    //}
+
+
                     // Store the message to the "aesOutput.txt"
-                    //fileIO::write_file(aesOutput.clone(),encrypted_message);
-                    println!("Your message is secure!" );
+                    //fileIO::write_file(aesOutput.clone(), array);
+                    println!("Your message is secure!");
+
+                    //message = fileIO::read_file(aesOutput.clone());
+
+
+                    //println!("Your message is {:?}", message.clone().into_bytes() );
+                    let var2 = aes256::aes256_decrypt(&var[..], &key, &iv);
+
+                    for value in var2.unwrap() {
+                        println!("{:?}", value as char);
+                    }            
 
                  },
             5 => {
