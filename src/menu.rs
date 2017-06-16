@@ -51,6 +51,13 @@ pub fn menu() {
     let initializedVector: String = "iv.txt".to_string();
 
 
+    // Key and IV for the AES-256 (de)encryption algorithm.
+    let mut key: [u8; 32] = [0; 32];
+    let mut iv: [u8; 16] = [0; 16];
+
+
+
+
     // while the user's choice is not 7 (Exit)
     // the loop is continuously executed.
     while userChoice != 7 {
@@ -111,45 +118,47 @@ pub fn menu() {
                     println!("The plaintext message is: {:?}", plaintext_message)
                  },
             4 => {
-                    let mut key: [u8; 32] = [0; 32];
-                    let mut iv: [u8; 16] = [0; 16];
+                    // Local variables.
+                    let mut encr_message: String = "".to_string();
+                    let mut rng = OsRng::new().ok().unwrap();
+
+                    // Create a random key and a random IV.
+                    rng.fill_bytes(&mut key);
+                    rng.fill_bytes(&mut iv);
+
 
                     // Read the message from "aesInput.txt"
                     message = fileIO::read_file(aesInput.clone());
 
-
-                    let mut rng = OsRng::new().ok().unwrap();
-                    rng.fill_bytes(&mut key);
-                    rng.fill_bytes(&mut iv);
-
                     // Encrypt the message using AES-256 encryption algorithm.
-                    let var = aes256::aes256_encrypt(&message.clone().into_bytes(), &key, &iv).ok().unwrap();
+                    let encrypted_AES_message = aes256::aes256_encrypt(&message.clone().into_bytes(), &key, &iv).ok().unwrap();
 
-                    let mut array: String = "".to_string();
-                    for letter in var {
-                        array.push(std::char::from_u32(letter as u32).unwrap());
+                    // Convert the message from byte stream to String.
+                    for byte in encrypted_AES_message {
+                        encr_message.push(std::char::from_u32(byte as u32).unwrap());
                     }
-
 
                     // Store the message to the "aesOutput.txt"
-                    fileIO::write_file(aesOutput.clone(), array);
-                    println!("Your message is secure!");
+                    fileIO::write_file(aesOutput.clone(), encr_message);
+                    println!("Your message is securely stored in {}!", aesOutput.clone());
 
-                    let message2 = fileIO::read_file(aesOutput.clone());
-                    let mut vec: Vec<u8> = Vec::new();
+                 },
+            5 => {
+                    let mut decr_message: String = "".to_string();
+                    let encr_message = fileIO::read_file(aesOutput.clone());
+                    let mut encr_message_as_bytes: Vec<u8> = Vec::new();
 
-                    for value in message2.chars() {
-                        vec.push(value as u8);
+                    for character in encr_message.chars() {
+                        encr_message_as_bytes.push(character as u8);
                     }
 
 
-                    let var2 = aes256::aes256_decrypt(&vec[..], &key, &iv);
+                    let decr_message_as_bytes = aes256::aes256_decrypt(&encr_message_as_bytes[..], &key, &iv);
 
-
-                    println!("{:?}", var2.unwrap());
-                 },
-            5 => {
-
+                    for byte in decr_message_as_bytes.unwrap() {
+                        decr_message.push(byte as char);
+                    }
+                    println!("The hidden message was {:?}", decr_message);
 
                  },
             6 => {
