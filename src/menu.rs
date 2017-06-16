@@ -144,25 +144,37 @@ pub fn menu() {
 
                  },
             5 => {
+                    // Local Variables.
                     let mut decr_message: String = "".to_string();
-                    let encr_message = fileIO::read_file(aesOutput.clone());
                     let mut encr_message_as_bytes: Vec<u8> = Vec::new();
 
+                    // Read the encrypted message from aesOutput.txt
+                    let encr_message = fileIO::read_file(aesOutput.clone());
+
+                    // Convert this message to a byte stream.
                     for character in encr_message.chars() {
                         encr_message_as_bytes.push(character as u8);
                     }
 
-
+                    // Decrypt the message using the AES-256 algorithm.
                     let decr_message_as_bytes = aes256::aes256_decrypt(&encr_message_as_bytes[..], &key, &iv);
 
+                    // Convert the message into String.
                     for byte in decr_message_as_bytes.unwrap() {
                         decr_message.push(byte as char);
                     }
+
                     println!("The hidden message was {:?}", decr_message);
 
                  },
             6 => {
+                    // Read the message from "aesInput.txt"
+                    message = fileIO::read_file(aesInput.clone());
 
+                    // Compute the sha256 value of the given message. 
+                    let sha256_value = sha256::sha256(message.clone());
+
+                    println!("The sha256 value of {} file is {:?}", aesInput.clone(), sha256_value );
 
                  },
             7 => {

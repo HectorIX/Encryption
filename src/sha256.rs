@@ -9,7 +9,7 @@ pub fn sha256( input: String ) -> String {
     let mut sha256 = Sha256::new();
 
     sha256.input_str(input.as_str());
-    let output = sha256.result_str();
+    let sha256_value = sha256.result_str();
 
-    output
+    sha256_value
 }
