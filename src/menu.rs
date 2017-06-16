@@ -126,25 +126,27 @@ pub fn menu() {
                     let var = aes256::aes256_encrypt(&message.clone().into_bytes(), &key, &iv).ok().unwrap();
 
                     let mut array: String = "".to_string();
-                    //for letter in var {
-                    //    array.push(std::char::from_u32(letter as u32).unwrap());
-                    //}
+                    for letter in var {
+                        array.push(std::char::from_u32(letter as u32).unwrap());
+                    }
 
 
                     // Store the message to the "aesOutput.txt"
-                    //fileIO::write_file(aesOutput.clone(), array);
+                    fileIO::write_file(aesOutput.clone(), array);
                     println!("Your message is secure!");
 
-                    //message = fileIO::read_file(aesOutput.clone());
+                    let message2 = fileIO::read_file(aesOutput.clone());
+                    let mut vec: Vec<u8> = Vec::new();
+
+                    for value in message2.chars() {
+                        vec.push(value as u8);
+                    }
 
 
-                    //println!("Your message is {:?}", message.clone().into_bytes() );
-                    let var2 = aes256::aes256_decrypt(&var[..], &key, &iv);
+                    let var2 = aes256::aes256_decrypt(&vec[..], &key, &iv);
 
-                    for value in var2.unwrap() {
-                        println!("{:?}", value as char);
-                    }            
 
+                    println!("{:?}", var2.unwrap());
                  },
             5 => {
 
